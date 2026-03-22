@@ -20,10 +20,4 @@ This project is a real-time Network Traffic Analyzer that captures live packets,
 - Chart.js
 - ReportLab
 
-## ▶️ How to Run
 
-```bash
-git clone https://github.com/yasmikathiru-collab/network-traffic-analyzer.git
-cd network-traffic-analyzer
-pip install -r requirements.txt
-python app.py
