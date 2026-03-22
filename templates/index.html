@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Network Analyzer Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+        }
+
+        .navbar {
+            background: #1e293b;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar button {
+            margin-left: 10px;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            flex: 1;
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #334155;
+        }
+
+        th {
+            background: #38bdf8;
+            color: black;
+        }
+
+        .alert {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 8px 15px;
+            background: #38bdf8;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="navbar">
+    <h2>🌐 Network Analyzer</h2>
+    <div>
+        <a href="/report"><button>Download Report</button></a>
+        <a href="/logout"><button>Logout</button></a>
+    </div>
+</div>
+
+<div class="container">
+
+    <div class="cards">
+        <div class="card">
+            <h3>Total Packets</h3>
+            <h2 id="totalPackets">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>TCP Packets</h3>
+            <h2 id="tcpCount">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Alerts</h3>
+            <h2 id="alertCount">0</h2>
+        </div>
+    </div>
+
+    <canvas id="chart"></canvas>
+
+    <h3>Live Traffic</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Source</th>
+                <th>Destination</th>
+                <th>Protocol</th>
+                <th>Size</th>
+                <th>Alerts</th>
+            </tr>
+        </thead>
+        <tbody id="table"></tbody>
+    </table>
+
+</div>
+
+<script>
+let chart = new Chart(document.getElementById("chart"), {
+    type: 'bar',
+    data: {
+        labels: ['TCP', 'UDP', 'OTHER'],
+        datasets: [{
+            label: 'Traffic',
+            data: [0,0,0]
+        }]
+    }
+});
+
+function fetchData(){
+    fetch('/data')
+    .then(res => res.json())
+    .then(data => {
+
+        let table = document.getElementById("table");
+        table.innerHTML = "";
+
+        let tcp=0, udp=0, other=0, alerts=0;
+
+        data.forEach(p => {
+
+            if(p.protocol=="TCP") tcp++;
+            else if(p.protocol=="UDP") udp++;
+            else other++;
+
+            if(p.alerts.length > 0) alerts++;
+
+            let alertText = p.alerts.length > 0 
+                ? `<span class="alert">${p.alerts}</span>` 
+                : "None";
+
+            let row = `<tr>
+                <td>${p.src_ip}</td>
+                <td>${p.dst_ip}</td>
+                <td>${p.protocol}</td>
+                <td>${p.packet_size}</td>
+                <td>${alertText}</td>
+            </tr>`;
+
+            table.innerHTML += row;
+        });
+
+        document.getElementById("totalPackets").innerText = data.length;
+        document.getElementById("tcpCount").innerText = tcp;
+        document.getElementById("alertCount").innerText = alerts;
+
+        chart.data.datasets[0].data = [tcp, udp, other];
+        chart.update();
+    });
+}
+
+setInterval(fetchData, 2000);
+</script>
+
+</body>
+</html>
