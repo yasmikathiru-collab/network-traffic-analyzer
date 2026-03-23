@@ -1,4 +1,4 @@
-from scapy.all import sniff
+
 from analyzer import analyze_packet
 from detector import detect_anomaly
 
@@ -16,5 +16,4 @@ def process_packet(packet):
         captured_data.append(data)
 
 def start_sniffing():
-    print("Starting packet capture...")
-    sniff(prn=process_packet, count=15)
+    print("Packet sniffing disabled in cloud")
