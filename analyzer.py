@@ -1,22 +1,22 @@
-from scapy.layers.inet import IP, TCP, UDP
-
-def analyze_packet(packet):
+def analyze_packet(row):
     data = {}
 
-    # Check if IP layer exists
-    if packet.haslayer(IP):
-        ip_layer = packet[IP]
-        
-        data['src_ip'] = ip_layer.src
-        data['dst_ip'] = ip_layer.dst
-        data['packet_size'] = len(packet)
+    try:
+        # Read values from CSV row
+        data['src_ip'] = row.get('src_ip', 'unknown')
+        data['dst_ip'] = row.get('dst_ip', 'unknown')
+        data['packet_size'] = row.get('packet_size', 0)
 
-        # Check protocol
-        if packet.haslayer(TCP):
+        protocol = str(row.get('protocol', 'OTHER')).upper()
+
+        if protocol == 'TCP':
             data['protocol'] = 'TCP'
-        elif packet.haslayer(UDP):
+        elif protocol == 'UDP':
             data['protocol'] = 'UDP'
         else:
             data['protocol'] = 'OTHER'
 
-    return data
+        return data
+
+    except Exception as e:
+        return None
