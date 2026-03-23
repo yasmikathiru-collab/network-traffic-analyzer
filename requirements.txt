@@ -1,4 +1,6 @@
-streamlit
+flask
+
 pandas
-plotly
+matplotlib
+scikit-learn==1.3.2
 reportlab
